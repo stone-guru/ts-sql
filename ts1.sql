@@ -1,4 +1,3 @@
-
 explain  analyse WITH labels as (
    SELECT road_id as link_id, __id__
      FROM indicator_label_1
@@ -73,27 +72,27 @@ explain analyse
 
 with data as (
     SELECT raw.composite_value_id,
-           lava_align(raw.__timestamp__, lava_timestamp('2020-03-01 23:58:00'), 120000*30) as t,
+           lava_align(raw.__timestamp__, 1583078280000, 120000*1) as t,
            first(raw.__value__, raw.__timestamp__) as __value__
-      FROM indicator_value_1 raw
+      FROM indicator_value_0 raw
              JOIN indicator_label_1 lb on lb.__id__ = raw.composite_value_id
      WHERE
        district_id = 'D10006'
        and  road_id = 'R10006130'
-       and (raw.__timestamp__ BETWEEN  lava_timestamp('2020-03-01 23:58:00')  - 86400000 + 1
-            AND lava_timestamp('2020-03-01 23:58:00') 
-            or raw.__timestamp__ BETWEEN  lava_timestamp('2020-03-01 23:58:00')  - 86400000 - 86400000 * 7 + 1
-            AND lava_timestamp('2020-03-01 23:58:00') - 86400000 * 7 
-            or raw.__timestamp__ BETWEEN  lava_timestamp('2020-03-01 23:58:00')  - 86400000 - 86400000 * 14 + 1
-            AND lava_timestamp('2020-03-01 23:58:00') - 86400000 * 14
-            or raw.__timestamp__ BETWEEN  lava_timestamp('2020-03-01 23:58:00') - 86400000 - 86400000 * 21 + 1
-            AND lava_timestamp('2020-03-01 23:58:00') - 86400000 * 21)
+       and (raw.__timestamp__ BETWEEN  1583078280000  - 86400000 + 1
+            AND 1583078280000 
+            or raw.__timestamp__ BETWEEN  1583078280000  - 86400000 - 86400000 * 7 + 1
+            AND 1583078280000 - 86400000 * 7 
+            or raw.__timestamp__ BETWEEN  1583078280000  - 86400000 - 86400000 * 14 + 1
+            AND 1583078280000 - 86400000 * 14
+            or raw.__timestamp__ BETWEEN  1583078280000 - 86400000 - 86400000 * 21 + 1
+            AND 1583078280000 - 86400000 * 21)
        -- and road_id = 'R10003020' or road_id = 'R10003021'  or road_id = 'R10003030'
      group by 1, 2
   ),
   aggr as (
       select d.composite_value_id,
-             ((lava_timestamp('2020-03-01 23:58:00') - d.t) % lava_day(1)) as t,
+             ((1583078280000 - d.t) % lava_day(1)) as t,
              avg(__value__) as __value__,
              last(d.t, d.t) as t2
         from data d
@@ -109,13 +108,13 @@ with data as (
 ;
 
 explain analyse
-  with data as (
+with data as (
     SELECT raw.composite_value_id,
            lava_align(raw.__timestamp__, lava_timestamp('2020-03-01 23:58:00'), 120000) as t,
            last(raw.__value__, raw.__timestamp__) as __value__
            -- count(*) as c,
            -- avg(__value__) as __value__
-      FROM indicator_value_1 raw
+      FROM indicator_value_0 raw
              JOIN indicator_label_1 lb on lb.__id__ = raw.composite_value_id
      WHERE
        (district_id = 'D10006'  or district_id = 'D10001' or district_id = 'D10008') and
@@ -148,24 +147,24 @@ explain analyse
 
 
 SELECT raw.composite_value_id as __id__,
-       (lava_timestamp('2020-03-01 23:58:00') - raw.__timestamp__) % lava_day(1) as t,
+       (lava_timestamp('2020-05-01 23:58:00') - raw.__timestamp__) % lava_day(1) as t,
        to_timestamp(raw.__timestamp__/1000) as raw_t
        -- to_timestamp(last(raw.__timestamp__, raw.__timestamp__)/1000) as raw_t,
        -- count(*) as c,
        -- avg(__value__) as v
-  FROM indicator_value_3 raw
+  FROM indicator_value_0 raw
          JOIN indicator_label_1 lb on lb.__id__ = raw.composite_value_id
  WHERE
    district_id = 'D10006'
    and  road_id = 'R10006130'
-   and (raw.__timestamp__ BETWEEN  lava_timestamp('2020-03-01 23:58:00')  - 86400000 + 1
-        AND lava_timestamp('2020-03-01 23:58:00') 
-        or raw.__timestamp__ BETWEEN  lava_timestamp('2020-03-01 23:58:00')  - 86400000 - 86400000 * 7 + 1
-        AND lava_timestamp('2020-03-01 23:58:00') - 86400000 * 7 
-        or raw.__timestamp__ BETWEEN  lava_timestamp('2020-03-01 23:58:00')  - 86400000 - 86400000 * 14 + 1
-        AND lava_timestamp('2020-03-01 23:58:00') - 86400000 * 14
-        or raw.__timestamp__ BETWEEN  lava_timestamp('2020-03-01 23:58:00') - 86400000 - 86400000 * 21 + 1
-        AND lava_timestamp('2020-03-01 23:58:00') - 86400000 * 21)
+   and (raw.__timestamp__ BETWEEN  lava_timestamp('2020-05-01 23:58:00')  - 86400000 + 1
+        AND lava_timestamp('2020-05-01 23:58:00') 
+        or raw.__timestamp__ BETWEEN  lava_timestamp('2020-05-01 23:58:00')  - 86400000 - 86400000 * 7 + 1
+        AND lava_timestamp('2020-05-01 23:58:00') - 86400000 * 7 
+        or raw.__timestamp__ BETWEEN  lava_timestamp('2020-05-01 23:58:00')  - 86400000 - 86400000 * 14 + 1
+        AND lava_timestamp('2020-05-01 23:58:00') - 86400000 * 14
+        or raw.__timestamp__ BETWEEN  lava_timestamp('2020-05-01 23:58:00') - 86400000 - 86400000 * 21 + 1
+        AND lava_timestamp('2020-05-01 23:58:00') - 86400000 * 21)
  order by __id__, t;
 
 
@@ -324,11 +323,9 @@ select time_bucket(bigint '28800000', __timestamp__) as __timestamp__,
  GROUP by 1, 2
 ;
 
-
 SELECT * 
   FROM indicator_value_1_hourly
   ORDER by __timestamp__ desc
   LIMIT 100;
-
 
 select to_timestamp(time_bucket(lava_hour(8), lava_timestamp('2020-02-01 09:34:01'))/1000);

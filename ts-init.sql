@@ -178,19 +178,20 @@ CREATE TABLE indicator_value_0 (
   PRIMARY KEY(composite_value_id, __timestamp__)
 );
 
-select create_hypertable('indicator_value_3', '__timestamp__',
+select create_hypertable('indicator_value_0', '__timestamp__',
                          chunk_time_interval => 1000 * 60 * 60 * 24 * 7,
                          if_not_exists => TRUE);
 
 
-ALTER TABLE indicator_value_3 SET (
+ALTER TABLE indicator_value_0 SET (
   timescaledb.compress,
   timescaledb.compress_segmentby = 'composite_value_id',
   timescaledb.compress_orderby = '__timestamp__ DESC'
 );
-select set_integer_now_func('indicator_value_3', 'unix_now');
 
-SELECT add_compress_chunks_policy('indicator_value_3', 1000 :: bigint * 60 * 60 * 24 * 56);
+select set_integer_now_func('indicator_value_0', 'unix_now');
+
+SELECT add_compress_chunks_policy('indicator_value_0', 1000 :: bigint * 60 * 60 * 24 * 35);
 
 
 CREATE OR REPLACE FUNCTION unix_now()
@@ -250,9 +251,9 @@ select  lb.__id__ as composite_value_id,
         1 as __real__
 from indicator_label_1 lb,
      (select extract(epoch from
-                     date '2020-01-01' + y.v - (interval '8 hour')
+                     date '2020-03-01' + y.v - (interval '8 hour')
                      + (m.v * interval '1 minute')) * 1000 as ms
-        from generate_series(0, 188, 1) as y(v),
+        from generate_series(0, 1, 1) as y(v),
              generate_series(0, 1438, 2) as m(v)) as tm;
 
 
@@ -261,6 +262,11 @@ select extract(epoch from
                      + (1 * interval '1 minute')) * 1000 as ms;
 
 
+update indicator_value_0 
+set __value__ = 100
+ where composite_value_id = 10006130 and  __timestamp__ = lava_timestamp('2020-03-01 23:08:00');
+                     
+       
 select timestamp '2020-01-01 12:00:23';
 
 select *
